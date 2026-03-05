@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Battle Royale</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:#111;
+font-family:Arial;
+}
+
+canvas{
+display:block;
+}
+
+#menu{
+position:absolute;
+width:100%;
+height:100%;
+background:#111;
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+button{
+padding:12px 20px;
+margin:8px;
+font-size:18px;
+}
+
+#hud{
+position:absolute;
+top:10px;
+left:10px;
+color:white;
+font-size:18px;
+}
+
+#mobile{
+position:absolute;
+bottom:20px;
+width:100%;
+display:flex;
+justify-content:space-between;
+pointer-events:none;
+}
+
+.joy{
+width:120px;
+height:120px;
+border-radius:50%;
+background:rgba(255,255,255,0.1);
+margin:20px;
+pointer-events:auto;
+}
+</style>
+</head>
+
+<body>
+
+<div id="menu">
+
+<h1>Mini Battle Royale</h1>
+
+<p>Choose Character</p>
+
+<button onclick="choose('soldier')">Soldier (balanced)</button>
+<button onclick="choose('tank')">Tank (more hp)</button>
+<button onclick="choose('scout')">Scout (fast)</button>
+
+<button onclick="startGame()">START</button>
+
+</div>
+
+<div id="hud">
+Health: <span id="hp">100</span><br>
+Enemies: <span id="enemycount">0</span>
+</div>
+
+<div id="mobile">
+<div id="moveJoy" class="joy"></div>
+<div id="aimJoy" class="joy"></div>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+
+const canvas=document.getElementById("game")
+const ctx=canvas.getContext("2d")
+
+canvas.width=innerWidth
+canvas.height=innerHeight
+
+let keys={}
+let bullets=[]
+let enemies=[]
+let obstacles=[]
+let particles=[]
+
+let mouse={x:0,y:0}
+
+let stormRadius=700
+
+let player={
+x:canvas.width/2,
+y:canvas.height/2,
+hp:100,
+speed:4,
+fireRate:20,
+cooldown:0
+}
+
+function choose(type){
+
+if(type=="tank"){
+player.hp=180
+player.speed=2.5
+player.fireRate=30
+}
+
+if(type=="scout"){
+player.hp=80
+player.speed=6
+player.fireRate=15
+}
+
+if(type=="soldier"){
+player.hp=100
+player.speed=4
+player.fireRate=20
+}
+
+}
+
+function startGame(){
+
+document.getElementById("menu").style.display="none"
+
+spawnEnemies()
+spawnObstacles()
+
+gameLoop()
+
+}
+
+function spawnEnemies(){
+
+for(let i=0;i<12;i++){
+
+enemies.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+hp:60,
+cool:0
+})
+
+}
+
+document.getElementById("enemycount").innerText=enemies.length
+
+}
+
+function spawnObstacles(){
+
+for(let i=0;i<20;i++){
+
+obstacles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+w:70,
+h:70
+})
+
+}
+
+}
+
+document.addEventListener("keydown",e=>keys[e.key]=true)
+document.addEventListener("keyup",e=>keys[e.key]=false)
+
+canvas.addEventListener("mousemove",e=>{
+mouse.x=e.clientX
+mouse.y=e.clientY
+})
+
+canvas.addEventListener("mousedown",shoot)
+
+function shoot(){
+
+if(player.cooldown>0) return
+
+let angle=Math.atan2(mouse.y-player.y,mouse.x-player.x)
+
+bullets.push({
+x:player.x,
+y:player.y,
+vx:Math.cos(angle)*10,
+vy:Math.sin(angle)*10,
+owner:"player"
+})
+
+player.cooldown=player.fireRate
+
+}
+
+function enemyShoot(enemy,target){
+
+let angle=Math.atan2(target.y-enemy.y,target.x-enemy.x)
+
+bullets.push({
+x:enemy.x,
+y:enemy.y,
+vx:Math.cos(angle)*7,
+vy:Math.sin(angle)*7,
+owner:enemy
+})
+
+}
+
+function movePlayer(){
+
+let nx=player.x
+let ny=player.y
+
+if(keys["w"]) ny-=player.speed
+if(keys["s"]) ny+=player.speed
+if(keys["a"]) nx-=player.speed
+if(keys["d"]) nx+=player.speed
+
+for(let o of obstacles){
+
+if(nx>o.x-15 && nx<o.x+o.w+15 &&
+ny>o.y-15 && ny<o.y+o.h+15){
+
+return
+
+}
+
+}
+
+player.x=nx
+player.y=ny
+
+}
+
+function findClosest(enemy){
+
+let closest=player
+let dist=Math.hypot(enemy.x-player.x,enemy.y-player.y)
+
+for(let e of enemies){
+
+if(e===enemy) continue
+
+let d=Math.hypot(enemy.x-e.x,enemy.y-e.y)
+
+if(d<dist){
+dist=d
+closest=e
+}
+
+}
+
+return closest
+
+}
+
+function hideBehindObstacle(enemy,target){
+
+for(let o of obstacles){
+
+let dx=target.x-o.x
+let dy=target.y-o.y
+
+enemy.x=o.x-dx*0.2
+enemy.y=o.y-dy*0.2
+
+}
+
+}
+
+function updateEnemies(){
+
+for(let e of enemies){
+
+let target=findClosest(e)
+
+let dist=Math.hypot(target.x-e.x,target.y-e.y)
+
+if(dist<200){
+
+hideBehindObstacle(e,target)
+
+}else{
+
+let angle=Math.atan2(target.y-e.y,target.x-e.x)
+
+e.x+=Math.cos(angle)*1
+e.y+=Math.sin(angle)*1
+
+}
+
+e.cool--
+
+if(e.cool<=0){
+
+enemyShoot(e,target)
+e.cool=80
+
+}
+
+}
+
+}
+
+function explode(x,y){
+
+for(let i=0;i<20;i++){
+
+particles.push({
+x:x,
+y:y,
+vx:(Math.random()-0.5)*6,
+vy:(Math.random()-0.5)*6,
+life:40
+})
+
+}
+
+}
+
+function updateParticles(){
+
+for(let i=particles.length-1;i>=0;i--){
+
+let p=particles[i]
+
+p.x+=p.vx
+p.y+=p.vy
+p.life--
+
+if(p.life<=0){
+particles.splice(i,1)
+}
+
+}
+
+}
+
+function updateBullets(){
+
+for(let i=bullets.length-1;i>=0;i--){
+
+let b=bullets[i]
+
+b.x+=b.vx
+b.y+=b.vy
+
+if(b.owner!="player"){
+
+if(Math.hypot(b.x-player.x,b.y-player.y)<15){
+
+player.hp-=10
+document.getElementById("hp").innerText=player.hp
+
+bullets.splice(i,1)
+continue
+
+}
+
+}
+
+for(let e of enemies){
+
+if(b.owner!==e && Math.hypot(b.x-e.x,b.y-e.y)<15){
+
+e.hp-=20
+bullets.splice(i,1)
+
+if(e.hp<=0){
+
+explode(e.x,e.y)
+
+enemies.splice(enemies.indexOf(e),1)
+document.getElementById("enemycount").innerText=enemies.length
+
+}
+
+break
+
+}
+
+}
+
+}
+
+}
+
+function updateStorm(){
+
+stormRadius-=0.02
+
+let dx=player.x-canvas.width/2
+let dy=player.y-canvas.height/2
+
+let dist=Math.sqrt(dx*dx+dy*dy)
+
+if(dist>stormRadius){
+player.hp-=0.1
+}
+
+}
+
+function draw(){
+
+ctx.fillStyle="#222"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+
+ctx.strokeStyle="#aa00ff"
+ctx.lineWidth=4
+ctx.beginPath()
+ctx.arc(canvas.width/2,canvas.height/2,stormRadius,0,Math.PI*2)
+ctx.stroke()
+
+ctx.fillStyle="#00e5ff"
+ctx.beginPath()
+ctx.arc(player.x,player.y,15,0,Math.PI*2)
+ctx.fill()
+
+ctx.fillStyle="#ff4444"
+for(let e of enemies){
+ctx.beginPath()
+ctx.arc(e.x,e.y,15,0,Math.PI*2)
+ctx.fill()
+}
+
+ctx.fillStyle="yellow"
+for(let b of bullets){
+ctx.beginPath()
+ctx.arc(b.x,b.y,4,0,Math.PI*2)
+ctx.fill()
+}
+
+ctx.fillStyle="#777"
+for(let o of obstacles){
+ctx.fillRect(o.x,o.y,o.w,o.h)
+}
+
+for(let p of particles){
+
+ctx.fillStyle="orange"
+ctx.fillRect(p.x,p.y,4,4)
+
+}
+
+}
+
+function checkWin(){
+
+if(enemies.length==0){
+
+alert("🏆 YOU WIN!")
+location.reload()
+
+}
+
+}
+
+function gameLoop(){
+
+movePlayer()
+
+if(player.cooldown>0) player.cooldown--
+
+updateEnemies()
+updateBullets()
+updateParticles()
+updateStorm()
+draw()
+checkWin()
+
+if(player.hp<=0){
+
+alert("Game Over")
+location.reload()
+
+}
+
+requestAnimationFrame(gameLoop)
+
+}
+
+</script>
+
+</body>
+</html>
